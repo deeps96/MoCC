@@ -21,8 +21,11 @@ Choose a working directory (we are using a GitHub Repository for this)
 - `gcloud compute instances create mocc-1 --image-project debian-cloud --image-family debian-10`
   - 25 - choose region europe-west1-b
 - `gcloud beta compute --project "mocc19-258314" ssh --zone "europe-west1-b" "mocc-1"`
-  - [Y] install beta
-  - enter passphrase
-  - [Y] enable API
+  - [Y] install beta package
+  - enter passphrase for SSH keygen generation
+  - [Y] enable API for Authorization
 - `gcloud compute instances stop mocc-1`
-- ``
+
+- machine-details: n1-standard-1
+  - # Virtual CPU 1
+  - RAM 3.75GB
