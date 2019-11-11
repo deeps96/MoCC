@@ -20,8 +20,11 @@ diff=$(($current-$start))
 while (($diff < 20))
 do
         sync
-        result=$(dd if=/dev/zero of=tempfile bs=1M count=1024 2>&1 | tail -1 | rev | cut -d " " -f2 | rev)
+        result_string=$(dd if=/dev/zero of=tempfile bs=1M count=1024 2>&1)
         sync
+        bytes=$(echo $result_string | rev | cut -d " " -f11 | rev)
+        seconds=$(echo $result_string | rev | cut -d " " -f4 | rev)
+        result=$(echo "scale=3;($bytes" / "$seconds)"|bc -l)
         rm tempfile
         current=$(date +"%s")
         diff=$(($current-$start))

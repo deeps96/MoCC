@@ -24,7 +24,10 @@ diff=$(($current-$start))
 while (($diff < 20))
 do
         /sbin/sysctl -w vm.drop_caches=3 > /dev/null
-        result=$(dd if=tempfile of=/dev/null bs=1M count=1024 2>&1 | tail -1 | rev | cut -d " " -f2 | rev)
+        result_string=$(dd if=tempfile of=/dev/null bs=1M count=1024 2>&1)
+        bytes=$(echo $result_string | rev | cut -d " " -f11 | rev)
+        seconds=$(echo $result_string | rev | cut -d " " -f4 | rev)
+        result=$(echo "scale=3;($bytes" / "$seconds)"|bc -l)
         current=$(date +"%s")
         diff=$(($current-$start))
         results+=($result)
