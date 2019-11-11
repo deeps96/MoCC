@@ -1,7 +1,7 @@
 #!/bin/bash
-EXECUTABLE="linpack"
+EXECUTABLE="memsweep"
 if [ ! -e $EXECUTABLE ] ; then
-        cc -O -o linpack linpack.c -lm
+        cc -O -o memsweep memsweep.c -lm
 fi
 
 # This function is based on: https://stackoverflow.com/questions/41750008/get-median-of-unsorted-array-in-one-line-of-bash
@@ -24,7 +24,7 @@ current=$start
 diff=$(($current-$start))
 while (($diff < 20))
 do
-        result=$(./${EXECUTABLE} | tail -1 | sed "s/[[:blank:]]\+/ /g" | cut -d " " -f 7)
+        result=$(./${EXECUTABLE} | rev | cut -d " " -f1 | rev)
         current=$(date +"%s")
         diff=$(($current-$start))
         results+=($result)
