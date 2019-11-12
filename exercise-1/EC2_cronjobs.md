@@ -1,0 +1,6 @@
+0 * 13,14 * * cd /home/ubuntu/MoCC/exercise-1/scripts && echo "$(date +\%s)"",""$(sudo /bin/bash /home/ubuntu/MoCC/exercise-1/scripts/measure-cpu.sh)" >> /home/ubuntu/MoCC/exercise-1/scripts/ec2-cpu.csv
+5 * 13,14 * * cd /home/ubuntu/MoCC/exercise-1/scripts && echo "$(date +\%s)"",""$(sudo /bin/bash /home/ubuntu/MoCC/exercise-1/scripts/measure-mem.sh)" >> /home/ubuntu/MoCC/exercise-1/scripts/ec2-mem.csv
+10 * 13,14 * * cd /home/ubuntu/MoCC/exercise-1/scripts && echo "$(date +\%s)"",""$(sudo /bin/bash /home/ubuntu/MoCC/exercise-1/scripts/measure-sequential-read.sh)" >> /home/ubuntu/MoCC/exercise-1/scripts/ec2-sequential-read.csv
+15 * 13,14 * * cd /home/ubuntu/MoCC/exercise-1/scripts && echo "$(date +\%s)"",""$(sudo /bin/bash /home/ubuntu/MoCC/exercise-1/scripts/measure-sequential-write.sh)" >> /home/ubuntu/MoCC/exercise-1/scripts/ec2-sequential-write.csv
+20 * 13,14 * * cd /home/ubuntu/MoCC/exercise-1/scripts && echo "$(date +\%s)"",""$(sudo /bin/bash /home/ubuntu/MoCC/exercise-1/scripts/measure-random-read.sh)" >> /home/ubuntu/MoCC/exercise-1/scripts/ec2-random-read.csv
+25 * 13,14 * * cd /home/ubuntu/MoCC/exercise-1/scripts && echo "$(date +\%s)"",""$(sudo /bin/bash /home/ubuntu/MoCC/exercise-1/scripts/measure-random-write.sh)" >> /home/ubuntu/MoCC/exercise-1/scripts/ec2-random-write.csv
