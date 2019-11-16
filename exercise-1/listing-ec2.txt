@@ -28,6 +28,7 @@ https://aws.amazon.com/de/free/?all-free-tier.sort-by=item.additionalFields.Sort
 
 take second from bottom (bottom has most recent, but is minified version)
 ami-00dc79254d0461090
+*Update* Later on we swtiched to the Ubuntu image with the ID ami-04b9e92b5572fa0d1. This was necessary for ensuring the most recent software package versions (f.e. for fio)
 
 https://docs.aws.amazon.com/cli/latest/reference/ec2/import-key-pair.html
 
@@ -40,8 +41,8 @@ Status can be fetched using
 `aws ec2 describe-instances`
 
 SSH
-`ssh ec2-user@<public dns from above command>`
+`ssh ec2-user@<public dns from above command>` or `ssh ubuntu@<public dns from above command>` for the ubuntu image
 
 Hardware:
 1 CPU
-1GB RAM
+1 GB RAM
