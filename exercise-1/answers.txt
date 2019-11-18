@@ -1,0 +1,41 @@
+# CPU benchmark results
+## Look at linpack.sh and linpack.c and shortly describe how the benchmark works.
+
+LINPACK is a benchmark for measuring the CPU performance.
+Firstly, the linpack.c gets compiled for the benchmark by the shell script linpack.sh.
+The program is separated into three different parts which all do extensive floating point arithmetics.
+Each of them solves a linear equation system under different conditions like the matrix size or the required precision of the results.
+After the compilation linpack.sh executes the C-program and filters the output for the required metric.
+
+## Find out what the LINPACK benchmark measures (try Google). Would you expect paravirtualization to affect the LINPACK benchmark? Why?
+
+The performance is represented by FLOPS (floating point operations per second) metric.
+The benchmark only executes calculations on the CPU.
+Since it does not involve critical (privileged) instructions, we would not expect the paravirtualization to affect the LINPACK benchmark.
+
+## Look at your LINPACK measurements. Are they consistent with your expectations? If not, what could be the reason?
+
+Both machines are running on one virtual core.
+However, since we do not know what kind of CPU is backing this virtual core the results could still be very different.
+In general we would assume that both machines have nearly the same performance since both of them belong to a low-cost instance and both of them have a similar turbo clock frequency.
+
+Although we were not quite sure about the base frequency of the EC2 t2.micro instance, we expected that both machines have a similar performance.
+The results show that the GCloud performes in average 272,167.7604 KFLOPS more than the EC2 instance which is about 12.4%.
+The average KFLOPS for EC2 is 2,194,698.108 KFLOPS.
+The average KFLOPS for GCloud is 2,466,865.868 KFLOPS.
+
+# Memory benchmark results
+## Find out how the memsweep benchmark works by looking at the shell script and the C code. Would you expect virtualization to affect the memsweep benchmark? Why?
+
+The memsweep benchmark measures how fast main memory can be accessed and overwritten.
+Therefore, a huge heap array with a size of 33,161,216 (~33MB) bytes gets created.
+In the next step different locations of the heap array are accessed and overwritten.
+We do expect that the paravirtualization slightly effects the measurement compared to a non-virtualized environment, since there is an additional level of indirection introduced.
+The paravirtualization only has to validate write requests to ensure isolation (as described in the lecture).
+Furthermore, we assume that full virtualization performs worse than paravirtualization, since the later one makes use of command batching for the allocation.
+However, since both of the VM's are running in a paravirtualization environment and both machines have sufficient memory capacities to store the 33MB, we do not expect big differences.
+
+## Look at your memsweep measurements. Are they consistent with your expectations? If not, what could be the reason?
+
+Our measurements show, that the average time for AWS is 5.89 seconds and for GCloud is 6.31 seconds.
+GCloud is therefore 7% faster than AWS.

@@ -1,48 +1,48 @@
 OS: MacOS 10.15.1
 
-https://docs.aws.amazon.com/cli/latest/userguide/install-macos.html
-http://www.studytrails.com/amazon-aws/create-aws-ec2-instance-using-cli/
-
-- `curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"`
-- `unzip awscli-bundle.zip`
-- `sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws`
-
-- `aws configure`
-  - AWS Access Key
-  - AWS Secret Access Key
-  - Default region name: region=us-east-1
-  - Default output format: json
-- `export AWS_SESSION_TOKEN=<>`
-- `export AWS_ACCESS_KEY_ID=<>`
-- `export AWS_SECRET_ACCESS_KEY=<>`
-taken from https://labs.vocareum.com/main/main.php?m=editor&nav=1&asnid=14334&stepid=14335 -> Account Details
-
-- `aws ec2 create-security-group --group-name mocc --description "MoCC security group"`
--> returns GroupId
-- `aws ec2 authorize-security-group-ingress --group-name mocc --protocol tcp --port 22 --cidr 0.0.0.0/0`
-
-https://aws.amazon.com/de/free/?all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc
--> free instance type: t2.micro
-
-- `aws ec2 describe-images --filters 'Name=architecture, Values=x86_64' 'Name=state, Values=available' 'Name=owner-alias, Values=amazon' 'Name=is-public, Values=true' 'Name=image-type, Values=machine' 'Name=name, Values=*ami*' --query 'sort_by(Images, &CreationDate)'`
-
+1. As described in [1] we need the Google Cloud SDK [2]. -> Download the google-cloud-sdk archive.
+  - `curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"`
+2. Unzip the downloaded archive
+  - `unzip awscli-bundle.zip`
+3. Execute the install script
+  - `sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws`
+4. Start the configuration tool. Use the information provided from from https://labs.vocareum.com/main/main.php?m=editor&nav=1&asnid=14334&stepid=14335 -> Account Details
+  - `aws configure`
+    - AWS Access Key
+    - AWS Secret Access Key
+    - Default region name: region=us-east-1
+    - Default output format: json
+5. Export the AWS Credentials to your environment
+  - `export AWS_SESSION_TOKEN=<>`
+  - `export AWS_ACCESS_KEY_ID=<>`
+  - `export AWS_SECRET_ACCESS_KEY=<>`
+6. Create a security group for mocc (optional step, we could also use the already existing one). This command returns the GroupId
+  - `aws ec2 create-security-group --group-name mocc --description "MoCC security group"`
+7. Set up the security rules for this group (allow ssh connection from anywhere)
+  - `aws ec2 authorize-security-group-ingress --group-name mocc --protocol tcp --port 22 --cidr 0.0.0.0/0`
+8. According to [3] the instance type t2.micro is free within the first year.
+9. Get a filtered lists of images. We filter by architecture, state, owner, availability, image type and name
+  - `aws ec2 describe-images --filters 'Name=architecture, Values=x86_64' 'Name=state, Values=available' 'Name=owner-alias, Values=amazon' 'Name=is-public, Values=true' 'Name=image-type, Values=machine' 'Name=name, Values=*ami*' --query 'sort_by(Images, &CreationDate)'`
 take second from bottom (bottom has most recent, but is minified version)
 ami-00dc79254d0461090
-*Update* Later on we swtiched to the Ubuntu image with the ID ami-04b9e92b5572fa0d1. This was necessary for ensuring the most recent software package versions (f.e. for fio)
+10. * Update * Later on we switched to the Ubuntu image with the ID ami-04b9e92b5572fa0d1. This was necessary for ensuring the most recent software package versions (f.e. for fio)
+11. Setup a AWS key-pair according to [4]. This key pair is used later for establishing a connection to the VM. We named the KeyPair MacBookPro.
+  - `aws ec2 import-key-pair --key-name MacBookPro --public-key-material file://~/.ssh/id_rsa.pub`
+12. Create and start the instance.
+  - `aws ec2 run-instances --image-id ami-04b9e92b5572fa0d1 --key-name MacBookPro --instance-type t2.micro --count 1 --security-groups mocc`
+13. The status of the creation process can be fetched using
+  - `aws ec2 describe-instances`
+14. Connect using plain ssh
+  - `ssh ec2-user@<public dns from above command>` or `ssh ubuntu@<public dns from above command>` for the ubuntu image
 
-https://docs.aws.amazon.com/cli/latest/reference/ec2/import-key-pair.html
+VM Details:
+type:           t2.micro
+# Virtual CPU:  1 (base: ??? GHz, turbo: 3.3 GHz according to [5])
+RAM:            3.75GB
 
-- `aws ec2 import-key-pair --key-name MacBookPro --public-key-material file://~/.ssh/id_rsa.pub`
-
-`aws ec2 run-instances --image-id ami-00dc79254d0461090 --key-name MacBookPro --instance-type t2.micro --count 1 --security-groups mocc`
-
-
-Status can be fetched using
-`aws ec2 describe-instances`
-
-SSH
-`ssh ec2-user@<public dns from above command>` or `ssh ubuntu@<public dns from above command>` for the ubuntu image
-
-Hardware:
-1 CPU
-1 GB RAM
+Sources:
+1. https://docs.aws.amazon.com/cli/latest/userguide/install-macos.html
+2. http://www.studytrails.com/amazon-aws/create-aws-ec2-instance-using-cli/
+3. https://aws.amazon.com/de/free/?all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc
+4. https://docs.aws.amazon.com/cli/latest/reference/ec2/import-key-pair.html
+5. https://aws.amazon.com/de/about-aws/whats-new/2014/07/01/introducing-t2-the-new-low-cost-general-purpose-instance-type-for-amazon-ec2/

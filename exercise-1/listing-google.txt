@@ -1,31 +1,45 @@
 OS: MacOS 10.15.1
 
-https://cloud.google.com/compute/docs/gcloud-compute/?hl=de
-
--> Installation via [Google Cloud SDK](https://cloud.google.com/sdk/docs/?hl=de)
-
-Choose a working directory (we are using a GitHub Repository for this)
-
-- `curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-245.0.0-darwin-x86_64.tar.gz`
-- `gunzip -c google-cloud-sdk-245.0.0-darwin-x86_64.tar.gz | tar xopf -`
-- `rm google-cloud-sdk-245.0.0-darwin-x86_64.tar.gz`
-- `./google-cloud-sdk/install.sh`
-- Restart terminal
-- `gcloud components update`
-- `gcloud init`
+0. Choose a working directory of your choice using cd. We are using a GitHub Repository for this.
+1. As described in [1] we need the Google Cloud SDK [2]. -> Download the google-cloud-sdk archive.
+  - `curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-245.0.0-darwin-x86_64.tar.gz`
+2. Unzip the downloaded archive
+  - `gunzip -c google-cloud-sdk-245.0.0-darwin-x86_64.tar.gz | tar xopf -`
+3. Remove the archive
+  - `rm google-cloud-sdk-245.0.0-darwin-x86_64.tar.gz`
+4. Execute the install script
+  - `./google-cloud-sdk/install.sh`
+5. Restart your terminal session
+6. Update Google Cloud SDK
+  - `gcloud components update`
+7. Start the configuration tool in order to login to your account and to setup a first project.
+  - `gcloud init`
   - Y - Login using Browser
   - [2] Create a new project
     - mocc19 as project id
-- `gcloud projects list`
-- `gcloud config set project <project-id>`
-- `gcloud compute instances create mocc-1 --image-project debian-cloud --image-family debian-10`
-  - 25 - choose region europe-west1-b
-- `gcloud beta compute --project "mocc19-258314" ssh --zone "europe-west1-b" "mocc-1"`
-  - [Y] install beta package
-  - enter passphrase for SSH keygen generation
-  - [Y] enable API for Authorization
-- `gcloud compute instances stop mocc-1`
+8. Verify that the project creation has been successful and retain the <project-id>.
+  - `gcloud projects list`
+9. Set project variable
+  - `gcloud config set project <project-id>`
+10. Create smallest possible instance running debian and choose proper region (europe-west1-b)
+  - `gcloud compute instances create mocc-1 --image-project debian-cloud --image-family debian-10`
+    - 25 - choose region europe-west1-b
+11. Connect to instance via ssh
+  - `gcloud beta compute --project "mocc19-258314" ssh --zone "europe-west1-b" "mocc-1"`
+    - [Y] install beta package
+    - enter passphrase for SSH keygen generation
+    - [Y] enable API for Authorization
+12. Shutdown the instance
+  - `gcloud compute instances stop mocc-1`
 
-- machine-details: n1-standard-1
-  - # Virtual CPU 1
-  - RAM 3.75GB
+VM Details:
+type:           n1-standard-1
+# Virtual CPU:  1 (base: 2 GHz according to [3], turbo: 3.5 GHz)
+RAM:            3.75GB
+
+
+Sources:
+
+1. https://cloud.google.com/compute/docs/gcloud-compute/?hl=de
+2. https://cloud.google.com/sdk/docs/?hl=de
+3. https://cloud.google.com/compute/docs/cpu-platforms?hl=de
