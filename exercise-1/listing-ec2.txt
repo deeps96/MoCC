@@ -39,6 +39,7 @@ VM Details:
 type:           t2.micro
 # Virtual CPU:  1 (base: ??? GHz, turbo: 3.3 GHz according to [5])
 RAM:            3.75GB
+Virtualization: Hardware Virtual Machine (HVM)
 
 Sources:
 1. https://docs.aws.amazon.com/cli/latest/userguide/install-macos.html

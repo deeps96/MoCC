@@ -37,7 +37,6 @@ type:           n1-standard-1
 # Virtual CPU:  1 (base: 2 GHz according to [3], turbo: 3.5 GHz)
 RAM:            3.75GB
 
-
 Sources:
 
 1. https://cloud.google.com/compute/docs/gcloud-compute/?hl=de
