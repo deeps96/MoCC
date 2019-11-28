@@ -1,8 +1,18 @@
 #!/bin/bash
-EXECUTABLE="forksum"
-if [ ! -e $EXECUTABLE ] ; then
-        cc -O -o forksum forksum.c -lm
-fi
+#sudo nginx
+#sudo nginx -s reload
+#sudo nginx -s quit
+#head -c 500M </dev/urandom >random_file.txt
+#default.conf:
+#server {
+#    listen 3333;
+#    root /usr/share/nginx/html;
+
+#    location /file/ {
+#        root /home/;
+#    }
+#}
+#File Location: /home/file/random_file.txt
 
 # This function is based on: https://stackoverflow.com/questions/41750008/get-median-of-unsorted-array-in-one-line-of-bash
 function median(){
@@ -25,7 +35,7 @@ diff=$(($current-$start))
 while (($diff < 20))
 do
         before=$(($(date +"%s%N")/1000000))
-        ./${EXECUTABLE} 1 5000 > /dev/null
+        wget -qO- http://"$1":3333/file/random_file.txt &> /dev/null | xargs -P10 > /dev/null 2>&1
         after=$(($(date +"%s%N")/1000000))
         result=$(echo "$after - $before" | bc -l)
         current=$(date +"%s")
@@ -34,3 +44,5 @@ do
 done
 
 median "${results[@]}"
+
+
