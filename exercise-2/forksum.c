@@ -47,22 +47,17 @@ int forksum(int lower_bound, int upper_bound){
         int rightPipe[2];
         int leftSum;
         int rightSum;
-        // int status;
-        // int wpid;
 
         pipe(leftPipe);
         pipe(rightPipe);
 
         int pid = getppid();
         spawn_child(left_lower_bound, left_upper_bound, leftPipe);
-        if (pid == getppid()) {
-          // while ((wpid = wait(&status)) > 0); // wait for both to complete
+        if (pid == getppid())
           spawn_child(right_lower_bound, right_upper_bound, rightPipe);
-        }
         if (pid == getppid()) {
           close(leftPipe[WRITE]);
           close(rightPipe[WRITE]);
-          // while ((wpid = wait(&status)) > 0); // wait for both to complete
           read(leftPipe[READ], &leftSum, sizeof(leftSum));
           read(rightPipe[READ], &rightSum, sizeof(rightSum));
           close(leftPipe[READ]);
