@@ -1,0 +1,8 @@
+Host system:
+
+RAM:            8GB DDR3
+CPU:            Intel Core i5-5200U @ 2.20 GHz 4 Cores
+OS:             Ubuntu 18.04.3 LTS
+Kernel:         Linux 5.0.0-36-generic
+Architecture:   x86-64
+Network:        TODO

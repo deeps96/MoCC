@@ -1,0 +1,23 @@
+# Installation of docker on the host system and creating + booting the container for the benchmarks
+- [host] Install docker
+  apt-get install docker.io
+- [host] Start and hook docker service
+  systemctl start docker
+  systemctl enable docker
+- [host] Build the image that is described in the dockerfile mooc_image (using the dockerfile of the current directory)
+  sudo docker build -t mooc_image .
+  - the dockerfile configures an ubuntu:18.04 image, installs the required libraries for the benchmarks and copies the benchmark scripts
+- [host] Start the image and link the nginx directory (including the nginx default.conf) and connect using bash
+  sudo docker run -it -P -v /etc/nginx/:/etc/nginx mooc_image bash
+- [guest] Start the nginx server
+  nginx
+- [host] List all running container including their CONTAINER_ID
+  sudo docker ps -a
+- [host] Get IP-address of docker container using CONTAINER_ID received by previous step
+  sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' [CONTAINER_ID]
+
+# Installation of Qemu and Qemu KVM on host system
+[host] Download http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/mini.iso
+[host] sudo apt-get install qemu
+[host] qemu-img create ubuntu.img 4G
+[host] qemu-system-x86_64 -hda ubuntu.img -boot d -cdrom ./mini.iso -m 1024
