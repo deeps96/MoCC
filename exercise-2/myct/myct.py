@@ -2,7 +2,7 @@ import fire # https://github.com/google/python-fire
 import wget
 import tarfile
 import os
-from sh import mount
+from sh import chroot, mount, unshare
 
 class MyCT(object):
 
@@ -18,8 +18,10 @@ class MyCT(object):
     def map(self, containerPath, hostPath, targetPath):
         mount('--bind', '-o ro', hostPath, containerPath + targetPath)
 
-    def run(self, containerPath, executable, args=[], namespace='kind=pid', limit='controllerkey=somekey'):
-        return 'run'
+    def run(self, containerPath, executable, args='', namespace='kind=pid', limit='controllerkey=somekey'):
+        chroot(containerPath)
+        unshare(executable, args)
+
 
 if __name__ == '__main__':
     fire.Fire(MyCT)
