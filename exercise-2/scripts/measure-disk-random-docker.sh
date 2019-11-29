@@ -1,10 +1,4 @@
 #!/bin/bash
-#sudo nginx
-#sudo nginx -s reload
-#sudo ps -ax | grep nginx
-#sudo nginx -s quit
-#File Location: /home/file/random_file.txt
-
 # This function is based on: https://stackoverflow.com/questions/41750008/get-median-of-unsorted-array-in-one-line-of-bash
 function median(){
   arr=($(printf '%lf\n' "${@}" | sort -n))
@@ -25,19 +19,12 @@ current=$start
 diff=$(($current-$start))
 while (($diff < 20))
 do
-        before=$(($(date +"%s%N")/1000000))
-        wget -qO- http://"$1":3333/file/random_file.txt &> /dev/null &
-        process_id=$!
-        wget -qO- http://"$1":3333/file/random_file.txt &> /dev/null &
-        wait $process_id
-        wait $!
-        after=$(($(date +"%s%N")/1000000))
-        result=$(echo "$after - $before" | bc -l)
+        result=$(fio --name=test --size=1G --filename=file1 --direct=1 --rw=randwrite --bs=1M | tail -1 | head -1 | rev | cut -d " " -f7 | rev | tr -dc '0-9') 
+        rm file1
         current=$(date +"%s")
         diff=$(($current-$start))
         results+=($result)
 done
 
+
 median "${results[@]}"
-
-

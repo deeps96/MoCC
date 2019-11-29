@@ -1,0 +1,26 @@
+# Download Image
+https://console.cloud.google.com/compute/images?hl=de&_ga=2.46194535.-1999548661.1573133377&_gac=1.216671650.1574331338.EAIaIQobChMIlo72nYn75QIVh813Ch1T3QLwEAAYASAAEgL02_D_BwE&project=mocc1920&folder&organizationId&tab=images&imagessize=50&imagesquery=%255B%257B_22k_22_3A_22_22_2C_22t_22_3A10_2C_22v_22_3A_22_5C_22ubuntu_5C_22_22%257D%255D
+
+
+# Qemu
+sudo apt-get install qemu
+
+
+# Docker
+## Install
+apt-get install docker.io
+systemctl start docker
+systemctl enable docker
+## Important commands
+sudo docker ps -a
+sudo docker stop [CONTAINER_ID]
+sudo docker rm [CONTAINER_ID]
+sudo docker container prune
+sudo docker system prune --volumes
+sudo docker run -it ubuntu bash
+sudo docker start [CONTAINER_ID]
+sudo docker exec -it [CONTAINER_ID] bash
+sudo docker build -t mooc_image .
+sudo docker run -it -P -v /etc/nginx/:/etc/nginx mooc_image bash
+sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' [CONTAINER_ID]
+docker images
