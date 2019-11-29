@@ -9,6 +9,7 @@ class MyCT(object):
     def init(self, containerPath):
         DOWNLOAD_URL = 'http://cdimage.ubuntu.com/ubuntu-base/releases/18.04/release/ubuntu-base-18.04-base-amd64.tar.gz'
         targetPath = containerPath + 'base.tar.gz'
+        # create dir if it does not exist
         wget.download(DOWNLOAD_URL, targetPath)
         tar = tarfile.open(targetPath, 'r:gz')
         tar.extractall(path=containerPath)
@@ -16,7 +17,8 @@ class MyCT(object):
         os.remove(targetPath)
 
     def map(self, containerPath, hostPath, targetPath):
-        mount('--bind', '-o ro', hostPath, containerPath + targetPath)
+        # create dir if it does not exist
+        mount('--bind', '-o', 'ro', hostPath, containerPath + targetPath)
 
     def run(self, containerPath, executable, args='', namespace='kind=pid', limit='controllerkey=somekey'):
         chroot(containerPath)
