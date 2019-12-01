@@ -31,18 +31,17 @@ class MyCT(object):
         current_time = str(int(round(time.time() * 1000)))
         if not limit is None:
             group = limit.split('=')[0].split('.')[0]
-            os.system('sudo mkdir /sys/fs/cgroup/'+group+'/'+current_time)
-            print('echo '+limit.split('=')[1]+' | sudo tee /sys/fs/cgroup/'+group+'/'+current_time+'/'+limit.split('=')[0])
+            os.system('cgcreate -g '+group+':'+current_time)
             os.system('echo '+limit.split('=')[1]+' | sudo tee /sys/fs/cgroup/'+group+'/'+current_time+'/'+limit.split('=')[0])
+	    command = 'sudo cgexec -g ' + group + ':' + current_time + ' /bin/bash -c ' + command
         os.system('mount -t proc proc '+absolutePath+'/proc')
-        #process = subprocess.call(command.split(' '))
         os.system(command)
         #os.system('echo $! | sudo tee /sys/fs/cgroup/'+group+'/'+current_time+'/tasks')
         #os.system('wait $pid')
         #os.system('umount '+absolutePath+'/proc')
         #if not limit is None:
         #    os.system('rmdir /sys/fs/cgroup/'+group+'/'+current_time)
-
+	#    os.system('sudo cgdelete ' + group +':' + current_time)
 
 
 if __name__ == '__main__':
