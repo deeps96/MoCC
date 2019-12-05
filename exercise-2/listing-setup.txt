@@ -17,7 +17,21 @@
   sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' [CONTAINER_ID]
 
 # Installation of Qemu and Qemu KVM on host system
-[host] Download http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/mini.iso
-[host] sudo apt-get install qemu
-[host] qemu-img create ubuntu.img 4G
-[host] qemu-system-x86_64 -hda ubuntu.img -m 2048 -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::3333-:3333
+QEMU KVM
+- [host] Download .iso of Ubuntu Server 18.04.3 LTS from https://ubuntu.com/download/server
+- [host] Install qemu
+  sudo apt-get install qemu
+- [host] Create disk image file name for the VM 
+  qemu-img create ubuntu.img 25G
+- [host] Launch VM (first time requires Ubuntu installation process) with access to 2GB RAM and enable port forwarding from host to guest for the nginx benchmark 
+  qemu-system-x86_64 -kvm-enable -hda ubuntu.img -m 2048 -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::3333-:3333
+- [guest] Install required tools for the benchmarks
+  apt-get install -y gcc nginx fio bc
+- [guest] Create default.conf file in /etc/nginx/conf.d as specified in default.conf in our submission
+- [guest] Create file in home directory served by nginx-server for the nginx benchmark
+  mkdir file
+  head -c 500M </dev/urandom >./file/random_file.txt
+- [guest] Start nginx server
+  sudo nginx
+- [guest] Pull Git-Repository where all benchmarks are located
+
