@@ -20,4 +20,4 @@
 [host] Download http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/mini.iso
 [host] sudo apt-get install qemu
 [host] qemu-img create ubuntu.img 4G
-[host] qemu-system-x86_64 -hda ubuntu.img -boot d -cdrom ./mini.iso -m 1024
+[host] qemu-system-x86_64 -hda ubuntu.img -m 2048 -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::3333-:3333
