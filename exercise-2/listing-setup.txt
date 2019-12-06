@@ -18,6 +18,7 @@
 
 # Installation of Qemu and Qemu KVM on host system
 QEMU KVM
+DONT FORGET, THAT INITIAL BOOT IS DIFFERENT TO LAUNCH!!!!!!!!!!!!!!!!!
 - [host] Download .iso of Ubuntu Server 18.04.3 LTS from https://ubuntu.com/download/server
 - [host] Install qemu
   sudo apt-get install qemu
