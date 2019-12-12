@@ -52,7 +52,9 @@ possibly leading to faster speeds due to no copy actually happening until the fi
   -> maybe qemu can process multiple getppid calls faster than a qemu KVM can process a single fork call
 
 ## [not optional] Why did we exclude this benchmark from the Rump Unikernel? How can you adapt the experiment for this platform?
-- TODO
+- As stated in https://www.netbsd.org/docs/rump/sysproxy.html the fork system call belongs to the group of `purely host kernel calls`, meaning that they are executed directly on the host kernel and are not implemented within the rump kernel.
+- It therefore would make no sense to include this benchmark for the rump unikernel, since we would measure the host OS again.
+- the benchmark would need to be adapted in a way, that we connect via an remote session, since a rump kernel can then deal with forks properly since the ip addresses are not from the same machine (https://github.com/rumpkernel/wiki/wiki/Info:-FAQ#user-content-Does_a_rump_kernel_support_fork_and_exec)
 
 # Nginx benchmark questions:
 ## Look at your nginx measurements. Are they consistent with your expectations? If not, what could be the reason?
@@ -72,3 +74,7 @@ possibly leading to faster speeds due to no copy actually happening until the fi
 
 ## How do your measurements relate to the disk benchmark findings?
 - they do not correlate at all, although the network speed might influence the I/O performance, however it did not occur on our setup
+
+===========
+While analyzing the benchmark results, we recognized in nearly every case that our assumptions about the differences between Qemu and Qemu KVM have not been met.
+We came to the conclusion, that maybe our native machine was not powerful enough, since we experienced multi-second delays when pressing keys and interacting with the virtual machine in general.
