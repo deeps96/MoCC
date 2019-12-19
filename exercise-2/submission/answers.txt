@@ -1,0 +1,80 @@
+# CPU benchmark questions
+## Look at your LINPACK measurements. Are they consistent with your expectations? If not, what could be the reason?
+### expectations
+- as indicated in slide 72 (chapter 2) we would expect that the Qemu and Qemu KVM measurements perform similar to the host machine
+- according to https://qemu.weilnetz.de/doc/qemu-doc.html Qemu gets all host CPU's assigned -> so there should be no difference
+- also the docker benchmark should have similar results compared to the host system since it does not rely on virtualization and directly uses the host OS
+
+### reality
+- both native and docker have ~2 Mio KFLOPS which conforms to our expectation
+- Qemu and Qemu KVM however perform much worse than native, yet they are similar -> both have ~33,000 KFLOPS
+  - this could be because of other virtualization tasks executed by Qemu which are influencing the results
+
+# Memory benchmark questions:
+## Look at your memsweep measurements. Are they consistent with your expectations? If not, what could be the reason?
+### expectations
+- again, we would assume that docker and native perform similar due to the fact that both run on the host OS
+- Qemu and Qemu KVM both should be slower than native/ docker because of the interventions of the hypervisor that are required for accessing the page table
+- because of the hardware support for memory virtualization Qemu KVM should perform better than Qemu
+- Qemu should be the slowest
+
+### reality
+- as expected native and docker perform similar, both haveing ~5 s
+- surprisingly qemu and qemu kvm perform similar ~140 s
+  - maybe qemu kvm has less VMM interventions, but due to the fact that we load different pages all the time, we get higher costs for TLB misses
+
+# Disk benchmark questions:
+## Look at your disk write measurements. Are they consistent with your expectations? If not, what could be the reason?
+### expectations
+- we would expect qemu to perform the worst since the VMM emulates the devices and an intervention is required for all in/out instructions (chart 80, chapter 2)
+- qemu kvm should use the native I/O drivers and we would therefore expect to have a similar performance as docker and native
+
+### reality
+- all four setups perform quite equally with ~400 Mbps, maybe we see some cashing effects by the VMM
+
+## Which disk format did you use for qemu? How do you expect this benchmark to behave differently on other disk formats?
+- since we did not specify a format in the `qemu-image create` command the default format `raw` is used
+- if we would have specified `qcow2` as format, which is stated as 'native' on https://en.wikibooks.org/wiki/QEMU/Images, then this format would make use of `copy on write`,
+possibly leading to faster speeds due to no copy actually happening until the first modification taking place
+
+# Fork benchmark questions:
+## Look at your fork sum measurements. Are they consistent with your expectations? If not, what could be the reason?
+### expectations
+- again, docker and native should perform similar
+- since we have a lot of system calls (for fork and getppid) where the VMM has to intervene we would expect that Qemu/ Qemu KVM perform much worse than native / docker
+- we expect the hardware assisted qemu KVM to perform worse for the fork system calls
+- however, for the getppid() calls we would expect KVM to perform better
+- if we assume that both have the same cost, then the KVM should be faster since there are more getppid calls than forks
+### reality
+- native and docker perform similar with ~2.7s
+- Qemu KVM ~36s
+- Qemu ~36s
+  -> maybe qemu can process multiple getppid calls faster than a qemu KVM can process a single fork call
+
+## [not optional] Why did we exclude this benchmark from the Rump Unikernel? How can you adapt the experiment for this platform?
+- As stated in https://www.netbsd.org/docs/rump/sysproxy.html the fork system call belongs to the group of `purely host kernel calls`, meaning that they are executed directly on the host kernel and are not implemented within the rump kernel.
+- It therefore would make no sense to include this benchmark for the rump unikernel, since we would measure the host OS again.
+- the benchmark would need to be adapted in a way, that we connect via an remote session, since a rump kernel can then deal with forks properly since the ip addresses are not from the same machine (https://github.com/rumpkernel/wiki/wiki/Info:-FAQ#user-content-Does_a_rump_kernel_support_fork_and_exec)
+
+# Nginx benchmark questions:
+## Look at your nginx measurements. Are they consistent with your expectations? If not, what could be the reason?
+### expectations
+- native is the fastest, but not much greater than docker
+- docker is a bit slower than native, since we have an additional level of indirection -> we use the network interface of docker and not the native one
+- since we are working with I/O operations and introduce an additional level of indirection using port-forwarding we assume that qemu and qemu KVM perform worse than docker
+- since KVM uses drivers we assume that it is faster than qemu
+### reality
+- native ~420 ms
+- docker ~660 ms
+- qemu KVM ~77,000 ms
+- qemu ~79,000 ms
+
+- as expected native performs faster than docker (but not significantly)
+- we are surprised that the performance of qemu KVM and qemu are similar, since 2 seconds on that scale are not that much
+
+## How do your measurements relate to the disk benchmark findings?
+- they do not correlate at all, although the network speed might influence the I/O performance, however it did not occur on our setup
+
+===========
+While analyzing the benchmark results, we recognized in nearly every case that our assumptions about the differences between Qemu and Qemu KVM have not been met.
+We came to the conclusion, that maybe our native machine was not powerful enough, since we experienced multi-second delays when pressing keys and interacting with the virtual machine in general.
