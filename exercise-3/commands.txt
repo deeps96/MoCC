@@ -65,6 +65,14 @@ docker push deeps96/mocc19:mocc-fe
 [HOST] Run the deployment playbook
   ansible-playbook -i inventory.ini --become --become-user=root cc-webapp.yml
 
+### Note regarding livenessProbe and readinessProbe:
+  The assignments requires to test for the header return values.
+  We implemented a shell script, that tests for the proper return value.
+  However, we have not been able to get the playbook accept our bash scripts for testing.
+  It still tried to make a http call, but complained about the missing parameters path and port.
+  We therefore decided to stick to solution that probes for readiness and liveness without validating the response headers.
+  The script for checking the headers can be found in the apendix of this file.
+
 ## Scale up and test the deployment
 [GCE] Scale up the front end and back end to 6 instead of 3
   sudo /usr/local/bin/kubectl scale deployments backend --replicas=6 -n mocc-space
@@ -73,3 +81,28 @@ docker push deeps96/mocc19:mocc-fe
   sudo /usr/local/bin/kubectl describe service -n mocc-space
 [HOST] Execute the test using the extracted port and the public ip's taken from GCE
   python test-deployment.py 35.198.165.81:31920 34.89.158.252:31920 35.198.124.235:31920
+
+
+# Appendix
+
+## Probe-script for response header fields
+### Backend
+```
+value=$(curl -s -D - 35.198.124.235:31920/ready | tail -3 | head -1) && if [[ $value = *"CC-Ready: Backend"* ]] ; then exit 0; else exit 1; fi
+```
+
+### Frontend
+value=$(curl -s -D - 35.198.124.235:31920/ready | tail -3 | head -1) && if [[ $value = *"CC-Ready: Frontend"* ]] ; then exit 0; else exit 1; fi
+
+Use above scripts in conjunction with the following probe (example for backend liveness probe):
+
+```
+livenessProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - backend_liveness.sh
+  initialDelaySeconds: 3
+  periodSeconds: 3
+```

@@ -1,0 +1,135 @@
+---
+- name: "Deployment"
+  hosts: all
+  tasks:
+    - name: "Install Setup Tools"
+      pip:
+        name: setuptools
+        state: latest
+        extra_args: --upgrade
+    - name: "Upgrade pip"
+      pip:
+        name: pip==9.0.3
+        extra_args: --upgrade
+    - name: "Install openshift"
+      pip:
+        name: openshift
+    - name: "Create a k8s namespace"
+      k8s:
+        api_version: v1
+        kind: Namespace
+        name: mocc-space
+        state: present
+    - name: "Creating Backend Deployment"
+      k8s:
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: backend
+            namespace: mocc-space
+          spec:
+            selector:
+              matchLabels:
+                app: mocc
+                tier: backend
+                track: stable
+            replicas: 3
+            template:
+              metadata:
+                labels:
+                  app: mocc
+                  tier: backend
+                  track: stable
+              spec:
+                containers:
+                  - name: backend-container
+                    image: deeps96/mocc19:mocc-be
+                    ports:
+                      - name: http
+                        containerPort: 80
+                    livenessProbe:
+                      httpGet:
+                        path: /ready
+                        port: 80
+                      initialDelaySeconds: 3
+                      periodSeconds: 3
+                    readinessProbe:
+                      httpGet:
+                        path: /ready
+                        port: 80
+                      initialDelaySeconds: 3
+    - name: "Creating Backend Service"
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: cc-backend-service
+            namespace: mocc-space
+          spec:
+            selector:
+              app: mocc
+              tier: backend
+            ports:
+            - protocol: TCP
+              port: 80
+              targetPort: http
+            type: ClusterIP
+    - name: "Creating Frontend Deployment"
+      k8s:
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: frontend
+            namespace: mocc-space
+          spec:
+            selector:
+              matchLabels:
+                app: mocc
+                tier: frontend
+                track: stable
+            replicas: 3
+            template:
+              metadata:
+                labels:
+                  app: mocc
+                  tier: frontend
+                  track: stable
+              spec:
+                containers:
+                - name: frontend-container
+                  image: deeps96/mocc19:mocc-fe
+                livenessProbe:
+                  httpGet:
+                    path: /ready
+                    port: 80
+                  initialDelaySeconds: 3
+                  periodSeconds: 3
+                readinessProbe:
+                  httpGet:
+                    path: /ready
+                    port: 80
+                  initialDelaySeconds: 3
+    - name: "Creating Frontend Service"
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: frontend
+            namespace: mocc-space
+          spec:
+            selector:
+              app: mocc
+              tier: frontend
+            ports:
+            - protocol: "TCP"
+              port: 80
+              targetPort: 80
+            type: NodePort
