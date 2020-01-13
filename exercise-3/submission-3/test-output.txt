@@ -1,0 +1,45 @@
+Sending 100 requests to 35.198.165.81:31920...
+Sending 100 requests to 34.89.158.252:31920...
+Sending 100 requests to 35.198.124.235:31920...
+
+Encountered 4 frontends:
+frontend-6bb69b6649-5kbbx
+frontend-6bb69b6649-n2rn4
+frontend-6bb69b6649-q4m4l
+frontend-6bb69b6649-j4rpx
+
+Encountered 6 backends:
+backend-78644c8474-b8rsl
+backend-78644c8474-fnq9k
+backend-78644c8474-862f7
+backend-78644c8474-5dfd8
+backend-78644c8474-zgfcp
+backend-78644c8474-bq2ph
+
+Encountered 24 reply texts:
+Hello! You are 10.233.75.4 and requested /etc/nginx/html/ from 10.233.75.6 (backend-78644c8474-5dfd8)
+Hello! You are 10.233.102.139 and requested /etc/nginx/html/ from 10.233.102.138 (backend-78644c8474-bq2ph)
+Hello! You are 10.233.102.139 and requested /etc/nginx/html/ from 10.233.75.7 (backend-78644c8474-b8rsl)
+Hello! You are 10.233.102.136 and requested /etc/nginx/html/ from 10.233.102.137 (backend-78644c8474-zgfcp)
+Hello! You are 10.233.102.139 and requested /etc/nginx/html/ from 10.233.71.7 (backend-78644c8474-fnq9k)
+Hello! You are 10.233.75.4 and requested /etc/nginx/html/ from 10.233.102.138 (backend-78644c8474-bq2ph)
+Hello! You are 10.233.75.4 and requested /etc/nginx/html/ from 10.233.102.137 (backend-78644c8474-zgfcp)
+Hello! You are 10.233.71.4 and requested /etc/nginx/html/ from 10.233.102.138 (backend-78644c8474-bq2ph)
+Hello! You are 10.233.75.4 and requested /etc/nginx/html/ from 10.233.71.7 (backend-78644c8474-fnq9k)
+Hello! You are 10.233.75.4 and requested /etc/nginx/html/ from 10.233.75.7 (backend-78644c8474-b8rsl)
+Hello! You are 10.233.71.4 and requested /etc/nginx/html/ from 10.233.75.6 (backend-78644c8474-5dfd8)
+Hello! You are 10.233.102.139 and requested /etc/nginx/html/ from 10.233.75.6 (backend-78644c8474-5dfd8)
+Hello! You are 10.233.75.4 and requested /etc/nginx/html/ from 10.233.71.8 (backend-78644c8474-862f7)
+Hello! You are 10.233.102.136 and requested /etc/nginx/html/ from 10.233.71.7 (backend-78644c8474-fnq9k)
+Hello! You are 10.233.102.136 and requested /etc/nginx/html/ from 10.233.75.6 (backend-78644c8474-5dfd8)
+Hello! You are 10.233.71.4 and requested /etc/nginx/html/ from 10.233.71.8 (backend-78644c8474-862f7)
+Hello! You are 10.233.71.4 and requested /etc/nginx/html/ from 10.233.102.137 (backend-78644c8474-zgfcp)
+Hello! You are 10.233.102.139 and requested /etc/nginx/html/ from 10.233.71.8 (backend-78644c8474-862f7)
+Hello! You are 10.233.102.136 and requested /etc/nginx/html/ from 10.233.71.8 (backend-78644c8474-862f7)
+Hello! You are 10.233.71.4 and requested /etc/nginx/html/ from 10.233.71.7 (backend-78644c8474-fnq9k)
+Hello! You are 10.233.102.136 and requested /etc/nginx/html/ from 10.233.75.7 (backend-78644c8474-b8rsl)
+Hello! You are 10.233.102.136 and requested /etc/nginx/html/ from 10.233.102.138 (backend-78644c8474-bq2ph)
+Hello! You are 10.233.71.4 and requested /etc/nginx/html/ from 10.233.75.7 (backend-78644c8474-b8rsl)
+Hello! You are 10.233.102.139 and requested /etc/nginx/html/ from 10.233.102.137 (backend-78644c8474-zgfcp)
+
+All tests passed.
