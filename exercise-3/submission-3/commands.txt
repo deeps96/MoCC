@@ -74,9 +74,9 @@ docker push deeps96/mocc19:mocc-fe
   The script for checking the headers can be found in the apendix of this file.
 
 ## Scale up and test the deployment
-[GCE] Scale up the front end and back end to 6 instead of 3
+[GCE] Scale up the front end to 4 and back end to 6 instead of 3
   sudo /usr/local/bin/kubectl scale deployments backend --replicas=6 -n mocc-space
-  sudo /usr/local/bin/kubectl scale deployments frontend --replicas=6 -n mocc-space
+  sudo /usr/local/bin/kubectl scale deployments frontend --replicas=4 -n mocc-space
 [GCE] Connect to a random node and get the service info, extract NodePort (31920 in our case)
   sudo /usr/local/bin/kubectl describe service -n mocc-space
 [HOST] Execute the test using the extracted port and the public ip's taken from GCE
