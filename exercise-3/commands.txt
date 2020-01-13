@@ -1,0 +1,75 @@
+# Setup GCE
+CentOS 7
+Allow HTTP
+
+# Commands
+
+## Setup
+[HOST] Install ansible
+  sudo pip install ansible==2.6
+[HOST] Clone Kubespray 2.8.1
+  git clone https://github.com/kubernetes-sigs/kubespray
+  cd kubespray
+  git checkout 2ac1c7562f46bba6be210f5aaa80f8510ffd850c
+[HOST] Install dependencies from ``requirements.txt``
+  sudo pip install -r requirements.txt
+[GCE] Connect to each VM via SSH
+
+[HOST] Copy ``inventory/sample`` as ``inventory/mocccluster``
+  cp -rfp inventory/sample inventory/mocccluster
+[HOST] Declare IP's from GCEs
+  declare -a IPS=(34.89.136.182 34.89.229.221 35.198.157.148)
+[HOST] Create inventory file using provided builder
+  CONFIG_FILE=inventory/mocccluster/inventory.ini python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+  Add node3 to kube-master group
+  Add access_ip to each node pointing to the private address that is shown in GCE for each VM
+  Change ip for each node to the internal one
+[HOST] Test connection to each VM
+  Connect at least once to each machine to add host key to known hosts
+  ansible all -m ping -i inventory/mocccluster/inventory.ini
+[HOST] Apply patch to kubespray
+  https://gist.github.com/harrycain72/f8640de950e54789c063762028ba5083
+[HOST] Run the kubespray playbook
+  ansible-playbook -i inventory/mocccluster/inventory.ini --become --become-user=root cluster.yml
+[GCE] Connect to a random VM get check cluster status
+  /usr/local/bin/kubectl cluster-info
+  /usr/local/bin/kubectl get node
+
+## Building the docker images
+[HOST] Build the docker image for the front end nginx server
+  cp assignment3-resources/frontend.nginx.conf frontend.nginx.conf
+  cp frontend.Dockerfile Dockerfile
+  docker build -t mocc-fe .
+[HOST] Build the docker image for the back end nginx server
+  cp assignment3-resources/backend.nginx.conf backend.nginx.conf
+  cp backend.Dockerfile Dockerfile
+  docker build -t mocc-be .
+[HOST] Run both docker images and exit them with Ctrl+D
+  docker run mocc-be /bin/bash
+  docker run mocc-fe /bin/bash
+[HOST] Let the docker images run in background
+  List all docker containers, get container id for mocc-be and mocc-fe
+    docker ps -a
+  Start both containers in background
+    docker start <container-id>
+
+## Publishing the docker images to Dockerhub
+Create a public repository with the name mocc19 https://hub.docker.com/repository/create
+Retag the Docker images
+  docker tag mocc-be deeps96/mocc19:mocc-be
+  docker tag mocc-fe deeps96/mocc19:mocc-fe
+docker push deeps96/mocc19:mocc-be
+docker push deeps96/mocc19:mocc-fe
+
+## Deploying the application
+[HOST] Run the deployment playbook
+  ansible-playbook -i inventory.ini --become --become-user=root cc-webapp.yml
+
+## Scale up and test the deployment
+[GCE] Scale up the front end and back end to 6 instead of 3
+  sudo /usr/local/bin/kubectl scale deployments backend --replicas=6 -n mocc-space
+  sudo /usr/local/bin/kubectl scale deployments frontend --replicas=6 -n mocc-space
+[GCE] Connect to a random node and get the service info, extract NodePort (31920 in our case)
+  sudo /usr/local/bin/kubectl describe service -n mocc-space
+[HOST] Execute the test
+  python test-deployment.py 35.198.165.81:31920 34.89.158.252:31920 35.198.124.235:31920

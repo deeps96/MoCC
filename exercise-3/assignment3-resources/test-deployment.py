@@ -54,7 +54,7 @@ class DeploymentTester(object):
 		for reply in self.replies:
 			print(reply)
 		print("")
-		
+
 		result = 0
 		result += self.check_set_len(self.backend_containers, "backend containers", [NUM_BACKEND_CONTAINERS])
 		result += self.check_set_len(self.frontend_containers, "frontend containers", [NUM_FRONTEND_CONTAINERS])
