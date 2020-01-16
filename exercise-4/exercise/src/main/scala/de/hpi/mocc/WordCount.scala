@@ -19,6 +19,8 @@
 package de.hpi.mocc
 
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.backuity.clist._
 
 /**
  * Skeleton for a Flink Batch Job.
@@ -30,37 +32,15 @@ import org.apache.flink.api.scala._
  * change the main class in the POM.xml file to this class (simply search for 'mainClass')
  * and run 'mvn clean package' on the command line.
  */
-object BatchJob {
+object WordCount extends CliMain[Unit]{
 
-  def main(args: Array[String]) {
+  var inputFile: String = opt[String](description = "Input File, that should be counted", default = "./data/tolstoy-war-and-peace.txt")
+  var outputFile: String = opt[String](description = "Output File, that contains the Word Counts", default = "./out/wordCount.txt")
+
+  def run: Unit = {
     // set up the batch execution environment
-    val env = ExecutionEnvironment.getExecutionEnvironment
-
-    /*
-     * Here, you can start creating your execution plan for Flink.
-     *
-     * Start with getting some data from the environment, like
-     *  env.readTextFile(textPath);
-     *
-     * then, transform the resulting DataSet[String] using operations
-     * like
-     *   .filter()
-     *   .flatMap()
-     *   .join()
-     *   .group()
-     *
-     * and many more.
-     * Have a look at the programming guide:
-     *
-     * http://flink.apache.org/docs/latest/apis/batch/index.html
-     *
-     * and the examples
-     *
-     * http://flink.apache.org/docs/latest/apis/batch/examples.html
-     *
-     */
-
-    // execute program
+    import org.apache.flink.api.scala.ExecutionEnvironment
+    val env: ExecutionEnvironment = ExecutionEnvironment.getExecutionEnvironment
     env.execute("Flink Batch Scala API Skeleton")
   }
 }
