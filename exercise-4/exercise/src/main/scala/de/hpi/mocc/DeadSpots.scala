@@ -12,7 +12,7 @@ object DeadSpots extends CliMain[Unit] {
   var input: String = opt[String](default = "./data/opencellid_data/berlin.csv")
   var output: String = opt[String](default = "./out/deadspots.csv")
   var spots: String = opt[String](default = "./data/testspots.csv")
-  var mnc: Seq[Int] = opt[Seq[Int]](default = Seq())
+  var mnc: String = opt[String](default = "")
 
   implicit def bool2int(b:Boolean) = if (b) 1 else 0
 
@@ -29,8 +29,9 @@ object DeadSpots extends CliMain[Unit] {
 
   def run: Unit = {
     val env = ExecutionEnvironment.getExecutionEnvironment
+    val parsedMnc = mnc.split(",").map(_.toInt)
     val cells = env.readCsvFile[Cell](input, ignoreFirstLine = true, includedFields = Array(0,2,4,6,7,8))
-        .filter(cell => (mnc.isEmpty || mnc.contains(cell.net)))
+        .filter(cell => parsedMnc.isEmpty || parsedMnc.contains(cell.net))
 
     val testSpots = env.readCsvFile[Spot](spots, ignoreFirstLine = true)
 
@@ -38,7 +39,7 @@ object DeadSpots extends CliMain[Unit] {
       (spot, cell) =>
         val dist = haversine(spot.lat, spot.lon, cell.lat, cell.lon)
         (spot.lon, spot.lat, cell.range, dist, cell.radio)
-    }.filter(entry =>  (entry._4 <= entry._3))
+    }.filter(entry => entry._4 <= entry._3)
     
     val spotsWithTheirRadios: DataSet[(Double, Double, Set[String])] = spotsWithTowers
         .groupBy("_1","_2")
@@ -69,7 +70,6 @@ object DeadSpots extends CliMain[Unit] {
         out.collect((lon, lat, unionedRadios))
     }
 
-    deduplicate.collect().foreach(println)
     val result: DataSet[(Double, Double, Int, Int, Int)] = deduplicate
         .map(elem => (elem._1, elem._2, elem._3.contains("GSM"):Int, elem._3.contains("UMTS"):Int, elem._3.contains("LTE"):Int))
 

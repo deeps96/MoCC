@@ -14,14 +14,15 @@ object CellCluster extends CliMain[Unit] {
   var input: String = opt[String](default = "./data/opencellid_data/berlin.csv")
   var output: String = opt[String](default = "./out/clusters.csv")
   var iterations: Int = opt[Int](default = 10)
-  var mnc: Seq[Int] = opt[Seq[Int]](default = Seq())
+  var mnc: String = opt[String](default = "")
   var k: Int = opt[Int](default = -1)
 
   def run: Unit = {
     val env = ExecutionEnvironment.getExecutionEnvironment
+    val parsedMnc = mnc.split(",").map(_.toInt)
     val towers = env.readCsvFile[Tower](input, ignoreFirstLine = true)
     val gsmUMTSTowers = towers.filter(tower =>
-      tower.radio == "GSM" || tower.radio == "UMTS" && (mnc.isEmpty || mnc.contains(tower.net)))
+      tower.radio == "GSM" || tower.radio == "UMTS" && (parsedMnc.isEmpty || parsedMnc.contains(tower.net)))
     val lteTowers = towers.filter(tower => tower.radio == "LTE")
     k = if (k != -1) k else lteTowers.count().toInt
 

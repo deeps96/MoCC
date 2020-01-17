@@ -47,7 +47,7 @@ under the License.
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<flink.version>1.9.1</flink.version>
 		<scala.binary.version>2.11</scala.binary.version>
-		<scala.version>2.11.11</scala.version>
+		<scala.version>2.11.12</scala.version>
 	</properties>
 
 	<dependencies>
@@ -148,7 +148,7 @@ under the License.
 							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>de.hpi.mocc.WordCount</mainClass>
+									<mainClass>de.hpi.mocc.DeadSpots</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
