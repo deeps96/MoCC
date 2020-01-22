@@ -1,0 +1,73 @@
+# Prepare Distributed Setup (Flink in Kubernetes)
+
+## Setup Kubernetes cluster
+Use commands as described in https://zero-to-jupyterhub.readthedocs.io/en/latest/google/step-zero-gcp.html
+
+[Google Cloud Web-Interface] Enable Kubernetes Engine API
+([HOST] Use previously installed kubectl and GC-CLI)
+[HOST] Setup GCloud cluster
+  ```
+  gcloud container clusters create \
+  --machine-type n1-standard-2 \
+  --num-nodes 1 \
+  --zone europe-west3 \
+  --cluster-version latest \
+  mocc
+  ```
+  *Note*
+  GCloud somehow created a cluster of 3 instances
+  Clustersize: 3, Cores: 6vCPU, Memory (total) 22.5 GB, Master-IP 35.246.219.9
+[HOST] Wait till cluster got spawned, then check for running nodes
+  `kubectl get node`
+[HOST] Get admin permissions
+  ```
+  kubectl create clusterrolebinding cluster-admin-binding \
+  --clusterrole=cluster-admin \
+  --user=<GOOGLE-EMAIL-ACCOUNT>
+  ```
+
+## Setup Flink on Kubernetes
+Use commands as described in https://ci.apache.org/projects/flink/flink-docs-stable/ops/deployment/kubernetes.html
+
+[HOST] Save yaml config files provided in apendix of https://ci.apache.org/projects/flink/flink-docs-stable/ops/deployment/kubernetes.html
+       Change image of jobmanager-deplyment.yaml to `flink:1.7.2-hadoop28-scala_2.11`
+[HOST] Launch cluster with configs
+  ```
+  kubectl create -f flink-configuration-configmap.yaml
+  kubectl create -f jobmanager-service.yaml
+  kubectl create -f jobmanager-deployment.yaml
+  kubectl create -f taskmanager-deployment.yaml
+  kubectl create -f jobmanager-rest-service.yaml
+  ```
+[HOST] Install Helm
+  - Download zip from https://get.helm.sh/helm-v3.0.2-linux-amd64.tar.gz
+  - Unpack Helm binary
+[HOST] Install hadoop
+  `helm install mocc stable/hadoop`
+[HOST] Check everything is running and ready + get pod name for yarn node manager
+  `kubectl get pods`
+[HOST] Copy all required complementary files (such as cell data and word count input files)
+  ```
+  hadoop fs -put /<local machime path> /<hdfs path>
+  kubectl cp tolstoy-war-and-peace.txt mocc-hadoop-hdfs-nn-0:/home
+  kubectl cp testspots.csv mocc-hadoop-hdfs-nn-0:/home
+  kubectl cp berlin.csv mocc-hadoop-hdfs-nn-0:/home
+  kubectl cp germany.csv mocc-hadoop-hdfs-nn-0:/home
+  ```
+[Hadoop-NN-Pod] Copy files from local to hdfs
+  ```
+  hadoop fs -put berlin.csv hdfs://mocc-hadoop-hdfs-nn:9000/berlin.csv
+  hadoop fs -put germany.csv hdfs://mocc-hadoop-hdfs-nn:9000/germany.csv
+  hadoop fs -put testspots.csv hdfs://mocc-hadoop-hdfs-nn:9000/testspots.csv
+  hadoop fs -put tolstoy-war-and-peace.txt hdfs://mocc-hadoop-hdfs-nn:9000/tolstoy-war-and-peace.txt
+```
+[HOST] Port forward
+  `kubectl port-forward flink-jobmanager-8558f64b8f-h8xnp 8081:8081`
+[HOST] Run WordCount example
+  `~/Downloads/flink-1.7.2/bin/flink run -m 127.0.0.1:8081 WordCount.jar --input=hdfs://mocc-hadoop-hdfs-nn:9000/tolstoy-war-and-peace.txt --output=hdfs://mocc-hadoop-hdfs-nn:9000/wordCount.csv`
+[Hadoop-NN-Pod] Get result when program finished
+  `hadoop fs -get hdfs://mocc-hadoop-hdfs-nn:9000/wordCount.csv /home/wordCount.csv`
+
+[HOST] Run other examples
+  `~/Downloads/flink-1.7.2/bin/flink run -m 127.0.0.1:8081 CellCluster.jar --input=hdfs://mocc-hadoop-hdfs-nn:9000/berlin.csv --iterations=10 --mnc=1,6,78 --k=500 --output=hdfs://mocc-hadoop-hdfs-nn:9000/clusters.csv`
+  `~/Downloads/flink-1.7.2/bin/flink run -m 127.0.0.1:8081 DeadSpots.jar --input=hdfs://mocc-hadoop-hdfs-nn:9000/berlin.csv --spots= hdfs://mocc-hadoop-hdfs-nn:9000/testspots.csv --mnc=1,6,78 --output=hdfs://mocc-hadoop-hdfs-nn:9000/deadspots.csv`
