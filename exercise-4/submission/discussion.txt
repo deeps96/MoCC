@@ -1,0 +1,76 @@
+# Experiments and Discussions
+
+## WordCount
+### Which steps in your program require communication and synchronization between your workers?
+When calculating the sum of all the groups we need at some point to sum up the intermediate results.
+As the writing to a single file can not be parallelized, this has also be executed sequentially.
+
+### What resources are your programs bound by? Memory? CPU? Network? Disk?
+The main task of the word count program is to compare strings, which leads us to the assumption that this task is mainly CPU bound.
+Transferring the different groups consisting of <word, wordCount> is probably as big as the string comparison efforts.
+Additionally, if the memory is way to low the groups may get stored to disk, so memory and disk become a concern, too.
+However, this is the case for all distributed programs.
+
+### How could you improve the partitioning of your data to yield better run-time?
+If the input files would be sorted, we could make use of data locality and every group consisting of <word, wordCount> would be only existing on one partition.
+
+## CellCluster
+### Which steps in your program require communication and synchronization between your workers?
+
+withBroadcastSet is a method that broadcasts the currentCentroids. Therefore, communication is required for that one.
+GroupBy will trigger data shuffling and therefore network communication.
+As the writing to a single file can not be parallelized, synchronization is required prior writing to disk.
+
+### What resources are your programs bound by? Memory? CPU? Network? Disk?
+Depending on the number of iterations the program is more CPU bound.
+When looking on the clustering efforts we would assume that the program is more network bound.
+
+### Observations regarding the run time and results of the jobs for different numbers of iterations or clusters for k-means
+Example command: ~/Downloads/flink-1.7.2/bin/flink run -m 127.0.0.1:8081 CellCluster.jar --input=hdfs://mocc-hadoop-hdfs-nn:9000/germany.csv --iterations=10 --mnc=1,6,78 --k=100 --output=hdfs://mocc-hadoop-hdfs-nn:9000/clusters.csv
+
+k=100, iterations=10  69609 ms
+k=50, iterations=10  47589 ms
+k=100, iterations=50 306527 ms
+k=100, iterations=15 72872 ms
+
+The number of iterations has a bigger impact than the size of the cluster.
+
+### How could you improve the partitioning of your data to yield better run-time?
+
+## DeadSpots
+### Which steps in your program require communication and synchronization between your workers?
+The step of deduplication requires communication since the intermediate results of the different partitions have to be merged.
+
+### What resources are your programs bound by? Memory? CPU? Network? Disk?
+Definitely memory, because of the very expensive cross product that has to be calculated.
+
+### How could you improve the partitioning of your data to yield better run-time?
+Cluster the points before executing the algorithm, so each partition has all points of the cluster. This reduces the amount of cross products needed.
+
+### Observations regarding the run time and results of the jobs for different initial placements
+Example command: ~/Downloads/flink-1.7.2/bin/flink run -m 127.0.0.1:8081 DeadSpots.jar --input=hdfs://mocc-hadoop-hdfs-nn:9000/germany.csv --mnc=1 --spots=hdfs://mocc-hadoop-hdfs-nn:9000/testspots.csv --output=hdfs://mocc-hadoop-hdfs-nn:9000/deadspots.csv
+
+lon,lat
+13.131675,52.393853
+14.359243,51.939038
+Job Runtime: 6144 ms
+
+lon,lat
+13.131675,52.393853
+Job Runtime: 5960 ms
+
+lon,lat
+13.131675,52.393853
+48.156740,11.568616
+50.944142,6.953551
+48.004631,7.773111
+51.764114,14.341951
+54.336034,10.135957
+53.919349,10.688037
+51.426160,7.037256
+50.673755,7.098384
+53.572305,10.035111
+52.380680,9.748082
+8163 ms
+
+As expected the runtime increases with the number of spots. However, it is not as bad as expected (probably due to the mnc filter that has been used)
